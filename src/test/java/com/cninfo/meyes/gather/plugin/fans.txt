@@ -1,0 +1,8 @@
+Fan  Location        Present Speed  of max  Redundant  Partner  Hot-pluggable
+---  --------        ------- -----  ------  ---------  -------  -------------
+#1   SYSTEM          Yes     NORMAL  6%      Yes        0        Yes           
+#2   SYSTEM          Yes     NORMAL  6%      Yes        0        Yes           
+#3   SYSTEM          Yes     NORMAL  6%      Yes        0        Yes           
+#4   SYSTEM          Yes     NORMAL  16%     Yes        0        Yes           
+#5   SYSTEM          Yes     NORMAL  27%     Yes        0        Yes           
+#6   SYSTEM          Yes     NORMAL  27%     Yes        0        Yes  
