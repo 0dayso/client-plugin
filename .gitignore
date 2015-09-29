@@ -2,3 +2,4 @@
 *.class   
 #忽略maven编译的target文件夹  
 #target/ 
+/target/

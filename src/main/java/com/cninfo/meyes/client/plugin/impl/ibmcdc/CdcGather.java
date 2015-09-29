@@ -108,7 +108,6 @@ public class CdcGather extends AbstractGatherPlugin {
 						/*
 						PerformanceStatisticData psd = new PerformanceStatisticData();
 						sub.getPerformanceStatistics(psd);
-						
 						DBPath[] paths = sub.getSubscribedTableDBPaths();
 						for(DBPath path : paths){
 							System.out.println(path.getName()+" / "+path.getFullName());

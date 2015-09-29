@@ -1,7 +1,9 @@
 package com.cninfo.meyes.client.plugin.impl.server;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.hyperic.sigar.CpuInfo;
 import org.hyperic.sigar.CpuPerc;
@@ -52,19 +54,15 @@ public class ServerCommon extends AbstractGatherPlugin {
 		event.getDoc().put("cpu", cpu);
 		cpu.put("perc", getCpuPercTotal());
 		cpu.put("info", getCpuInfo());
-		//System.out.println(cpu.toString());
 
 		DBObject mem = this.memory();
 		event.getDoc().put("memory", mem);
-		//System.out.println(mem.toString());
 
 		BasicDBList volumn = volumn();
 		event.getDoc().put("volumn", volumn);
-		//System.out.println(volumn.toString());
 		
 		BasicDBList io = io();
 		event.getDoc().put("io", io);
-		//System.out.println(io.toString());
 		
 		DBObject sys = sysInfo();
 		event.getDoc().put("sys", sys);
@@ -91,25 +89,39 @@ public class ServerCommon extends AbstractGatherPlugin {
 	private BasicDBList io() throws SigarException {
 		BasicDBList list = new BasicDBList();
 		FileSystem[] fslist = this.proxy.getFileSystemList();
+		Map<String,DBObject> map = new HashMap<String,DBObject>();
 		for (int i = 0; i < fslist.length; i++) {
 			FileSystem fs = fslist[i];
 			if (fs.getType() == FileSystem.TYPE_LOCAL_DISK) {
-
 				DBObject obj = new BasicDBObject();
-				FileSystemUsage usage = this.sigar.getFileSystemUsage(fs
-						.getDirName());
+				FileSystemUsage usage = this.sigar.getFileSystemUsage(fs.getDirName());
+				map.put(fs.getDirName(), obj);
 				obj.put("MountedOn", fs.getDirName().replaceAll("\\\\", "/"));
 				obj.put("Filesystem", fs.getDevName().replaceAll("\\\\", "/"));
 				
-				obj.put("Reads", String.valueOf(usage.getDiskReads()));
-				obj.put("Writes", String.valueOf(usage.getDiskWrites()));
+				obj.put("Reads", usage.getDiskReads());
+				obj.put("Writes", usage.getDiskWrites());
 
-				obj.put("r_bytes", Sigar.formatSize(usage.getDiskReadBytes()));
-				obj.put("w_bytes", Sigar.formatSize(usage.getDiskWriteBytes()));
+				obj.put("r_bytes", usage.getDiskReadBytes());
+				obj.put("w_bytes", usage.getDiskWriteBytes());
 
 				list.add(obj);
 			}
 		}
+		/*
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		for(String mountOn : map.keySet()){
+			DBObject obj = map.get(mountOn);
+			FileSystemUsage usage = this.sigar.getFileSystemUsage(mountOn);
+			obj.put("r_bytes_1", usage.getDiskReadBytes());
+			obj.put("w_bytes_1", usage.getDiskWriteBytes());
+		}
+		*/
 		return list;
 	}
 
@@ -209,9 +221,11 @@ public class ServerCommon extends AbstractGatherPlugin {
 		ClientUtil cu = new ClientUtil();
 		List<String> list = cu.getValidNetName();
 		
+		//Map<String,DBObject> map = new HashMap<String,DBObject>();
 		for(String name : list){
 			DBObject eth = new BasicDBObject();
 			net.add(eth);
+			//map.put(name, eth);
 			NetInterfaceStat stat = sigar.getNetInterfaceStat(name);
 			long speed = stat.getSpeed();
 			long rx = stat.getRxBytes()/1024;
@@ -231,6 +245,21 @@ public class ServerCommon extends AbstractGatherPlugin {
 			eth.put("rx_kb",rx);
 			eth.put("tx_kb",tx);
 		}
+		/*
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		for(String name : map.keySet()){
+			DBObject eth = map.get(name);
+			NetInterfaceStat stat = sigar.getNetInterfaceStat(name);
+			long rx = stat.getRxBytes()/1024;
+			long tx = stat.getTxBytes()/1024;
+			eth.put("rx_kb_1",rx);
+			eth.put("tx_kb_1",tx);
+		}
+		*/
 		return obj;
 	}
 
